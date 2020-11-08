@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        #canvas {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            margin: auto;
+            /* outline: 1px solid #ccc; */
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" width="100" height="100"></canvas>
+    <script>
+        /* https://zengzoe.github.io/2018/08/02/%E6%B0%B4%E6%B3%A2%E7%BA%B9%E8%BF%9B%E5%BA%A6%E6%9D%A1%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/ */
+
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+
+        let blue1 = '#A3DDF6';
+        let blue2 = '#79d4f9';
+
+        const WIDTH = 100;
+        const HEIGHT = 100;
+        const StartPt = { x: 0, y: 0 }
+        let pts = [];
+        let A = 8;
+        let w = 10;
+        let offset = 0;
+
+        let step = 5;
+
+        function getY(x, os = 0) {
+            return A * Math.sin(w * x + offset + os) + StartPt.y
+        }
+
+        let dir = 1;
+        let stop = false;
+        ctx.font = "30px serif";
+        ctx.textAlign ="center";
+        ctx.textBaseline ="middle";
+
+        function drawWave(color, offset) {
+            ctx.beginPath();
+            ctx.moveTo(StartPt.x, HEIGHT - getY(StartPt.x));
+            let pts = [];
+            for (let i = step; i <= WIDTH; i += step) {
+                let x = i + StartPt.x;
+                pts.push({
+                    x,
+                    y: getY(x, offset)
+                })
+            }
+            for (let p of pts) {
+                ctx.lineTo(p.x, HEIGHT - p.y);
+            }
+            ctx.lineTo(WIDTH, HEIGHT);
+            ctx.lineTo(StartPt.x, HEIGHT);
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+            if(StartPt.y>50){
+                ctx.fillStyle="#ffffff";
+            }
+            else
+            {
+                ctx.fillStyle=blue1;
+            }
+            ctx.fillText(Math.round((StartPt.y>100?100:StartPt.y)/HEIGHT*100)+"%",WIDTH/2,HEIGHT/2);
+
+        }
+
+        const LINEWIDTH=5;
+
+        ctx.lineWidth = LINEWIDTH;
+        ctx.beginPath();
+        ctx.arc(WIDTH / 2, HEIGHT / 2, WIDTH / 2-LINEWIDTH, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(192,225,242,0.3)';
+        ctx.stroke();
+        ctx.clip();
+        hasContainer=true;
+
+        function render() {
+            if (stop)
+                return;
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            drawWave(blue1);
+            drawWave(blue2, 10);
+            offset += 0.2;
+            StartPt.y += 0.5;
+            if (StartPt.y >= 100 + A) {
+                stop = true;
+            }
+        }
+
+
+        function startRender() {
+            render();
+            requestAnimationFrame(startRender);
+        }
+
+        startRender();
+    </script>
+</body>
+
+</html>

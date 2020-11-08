@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html.body {
+            width: 100%;
+            height: 100%;
+        }
+
+        #canvas {
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script>
+
+        const RADIUS = 10;
+        const COLOR_1 = "#A9DDFC";
+        const COLOR_2 = "#C5E8FD";
+
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+
+        let width = 800;
+        let height = 600;
+
+
+        let x1 = 10;
+        let y1 = 10;
+
+        function convertY(y) {
+            return height - y;
+        }
+
+        let startPt = { x: 100, y: 100 }
+
+        let x2 = startPt.x + 50;
+        let w = 50;
+        let h1 = 300;
+
+        let maxY = convertY(startPt.y+h1-RADIUS);
+
+        let bullueY=convertY(startPt.x+RADIUS);
+
+        function render() {
+            ctx.clearRect(0, 0, width, height);
+
+            //x轴
+            ctx.beginPath();
+            ctx.moveTo(startPt.x, convertY(startPt.y));
+            ctx.lineTo(width - 100, convertY(startPt.y));
+            ctx.lineTo(width - 100 - x1, convertY(startPt.y - y1));
+            ctx.stroke();
+
+            //y轴
+            ctx.beginPath();
+            ctx.moveTo(startPt.x, convertY(startPt.y));
+            ctx.lineTo(startPt.x, convertY(height - 100));
+            ctx.lineTo(startPt.x - x1, convertY(height - 100 - y1));
+            ctx.stroke();
+
+            //绘制方块
+            ctx.beginPath();
+            ctx.fillStyle = "#C23531";
+            ctx.rect(startPt.x + 50, convertY(startPt.y) - h1, w, h1);
+            ctx.fill();
+        }
+
+        class Bubble {
+            constructor(x, y, speed, color,addSpeed) {
+                this.x = x;
+                this.y = y;
+                this.speed = speed;
+                this.color = color;
+                this.radius = RADIUS;
+                this.addSpeed=addSpeed;
+            }
+            up() {
+                this.y -= this.speed*this.addSpeed;
+                if (this.y>= maxY) {
+                    this.draw();
+                    return true;
+                }
+                return false;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+        function Random(min, max) {
+            return Math.round(Math.random() * (max - min)) + min;
+        }
+        //随机生产10个气泡
+        let bubbles = new Set();
+        for (let i = 0; i < 10; i++) {
+            getBullue();
+        }
+
+        function getBullue() {
+            let x = Random(0,  w-2*RADIUS);
+            let speed = Math.random()+0.5;
+            let addSpeed = Math.random()+1;
+            let n = Random(1, 2);
+            bubbles.add(new Bubble(x2+RADIUS+x,bullueY, speed, n === 1 ? COLOR_1 : COLOR_2,addSpeed));
+        }
+     
+        function startRender() {
+            requestAnimationFrame(startRender);
+            render();
+            for (let bubble of bubbles) {
+                let status=bubble.up();
+                if(!status)
+                {
+                    bubbles.delete(bubble);
+                    getBullue()
+                }
+            }
+        }
+
+        startRender();
+    </script>
+</body>
+
+</html>
