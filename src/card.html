@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不规则尺寸卡片自动填充布局</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #main {
+            width: 1000px;
+            height: 800px;
+            background: #ccc;
+            display: flex;
+            position: relative;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        #main>div {
+            outline: 1px solid #000;
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main">
+
+    </div>
+    <script>
+        const Container = document.getElementById("main");
+
+        let totalWidth = Container.getBoundingClientRect().width
+
+        const DefaultWidth = 100;
+        const heightData = [];
+
+        function getRandom() {
+            return Math.ceil(((Math.random()) * 50)) + 100
+        }
+        function Color() {
+            let r = Math.ceil(Math.random() * 255);
+            let g = Math.ceil(Math.random() * 255);
+            let b = Math.ceil(Math.random() * 255);
+            return 'rgba(' + r + ',' + g + ',' + b + ',0.8)';
+        }
+        let data = [];
+        for (let i = 0; i < 100; i++) {
+            data.push({
+                height: getRandom(),
+                background: Color(),
+            })
+        }
+
+        /* 行列信息*/
+        let rowColInfos = [];
+
+        let currentCol = 0;
+        let currentRow = 0;
+
+        //每行信息排序一次
+        let isSort = false;
+        //当前行是否铺满标
+        let mark = 0;
+
+        const frag = document.createDocumentFragment();
+
+        for (let d of data) {
+            let div = document.createElement("div");
+            div.style.width = DefaultWidth + "px";
+            div.style.height = d.height + "px";
+            div.style.backgroundColor = d.background;
+            frag.append(div);
+
+            //第一行，记录当前列的初始数据
+            if (currentRow === 0) {
+                heightData[currentCol] = {
+                    height: d.height,
+                    row: currentRow,
+                    col: currentCol,
+                };
+                div.style.left = DefaultWidth * currentCol + "px";
+                div.style.top = 0;
+                if (DefaultWidth * (currentCol + 1) + DefaultWidth >= totalWidth) {
+                    currentRow++;
+                }
+                else
+                    currentCol++;
+            }
+            else {
+                //当前每列的高度，从低到高排序
+                if (!isSort) {
+                    heightData.sort((d1, d2) => d1.height - d2.height);
+                    isSort = true;
+                }
+
+                for (let info of heightData) {
+                    //取当前行数据信息给与当前卡片的位置
+                    if (info.row + 1 === currentRow) {
+                        div.style.left = info.col * DefaultWidth + "px";
+                        div.style.top = info.height + "px";
+                        info.height += d.height;
+                        mark++;
+                        info.row++;
+                        break;
+                    }
+                }
+                //这行填充满了，进行下一轮填充
+                if (mark === heightData.length) {
+                    mark = 0;
+                    isSort = false;
+                    currentRow++;
+                }
+            }
+        }
+        Container.appendChild(frag);
+
+    </script>
+</body>
+
+</html>

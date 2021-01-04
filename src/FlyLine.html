@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        #canvas {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            margin: auto;
+            outline: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script>
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+        let width = 800;
+        let height = 600;
+
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, 800, 600)
+
+        const P1 = {
+            x: 200, y: 100,
+        }
+        const P2 = {
+            x: 100, y: 200
+        }
+
+
+        function createGradient(p0, p1, data) {
+            var grd = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
+            for (let [offset, color] of data)
+                grd.addColorStop(offset, color);
+            return grd;
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(P1.x, P1.y);
+        ctx.lineTo(P2.x, P2.y);
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = createGradient(P1, P2, [
+            [0, 'rgba(0,0,0,0)'],
+            [0.2, 'rgba(255,255,255,0.2)'],
+            [1, 'rgba(255,255,255,1)'],
+        ]);
+        ctx.shadowColor = 'rgba(255,255,255,1)';
+        ctx.shadowBlur = 5;
+        ctx.stroke();
+
+
+        function render() {
+
+        }
+
+
+        function startRender() {
+            requestAnimationFrame(startRender);
+            render();
+        }
+
+        startRender();
+    </script>
+</body>
+
+</html>
